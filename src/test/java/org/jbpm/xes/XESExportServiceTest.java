@@ -1,0 +1,142 @@
+package org.jbpm.xes;
+
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Date;
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
+import org.dashbuilder.dataset.ColumnType;
+import org.dashbuilder.dataset.impl.DataSetImpl;
+import org.jbpm.process.audit.NodeInstanceLog;
+import org.jbpm.xes.dataset.DataSetService;
+import org.jbpm.xes.model.LogType;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.kie.api.runtime.process.ProcessInstance;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static java.util.Collections.singletonList;
+import static org.jbpm.xes.mapper.EventTypeMapper.*;
+import static org.jbpm.xes.mapper.TraceTypeMapper.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class XESExportServiceTest {
+
+    @Mock
+    private DataSetService dataSetService;
+
+    @InjectMocks
+    private XESExportServiceImpl xesExportService;
+
+    @Test
+    public void testExport() throws Exception {
+        final DataSetImpl tracesDataSet = new DataSetImpl();
+        final Integer processInstanceId = 1;
+        tracesDataSet.addColumn(COLUMN_PROCESS_INSTANCE_ID,
+                                ColumnType.NUMBER,
+                                singletonList(processInstanceId));
+        tracesDataSet.addColumn(COLUMN_USER_IDENTITY,
+                                ColumnType.LABEL,
+                                singletonList("admin"));
+        tracesDataSet.addColumn(COLUMN_CORRELATION_KEY,
+                                ColumnType.LABEL,
+                                singletonList(1));
+        tracesDataSet.addColumn(COLUMN_PROCESS_VERSION,
+                                ColumnType.LABEL,
+                                singletonList("1.0"));
+        tracesDataSet.addColumn(COLUMN_PROCESS_INSTANCE_DESCRIPTION,
+                                ColumnType.LABEL,
+                                singletonList("Evaluation"));
+        tracesDataSet.addColumn(COLUMN_PARENT_PROCESS_INSTANCE_ID,
+                                ColumnType.NUMBER,
+                                singletonList(-1));
+        tracesDataSet.addColumn(COLUMN_STATUS,
+                                ColumnType.NUMBER,
+                                singletonList(ProcessInstance.STATE_ACTIVE));
+        tracesDataSet.addColumn(COLUMN_SLA_COMPLIANCE,
+                                ColumnType.NUMBER,
+                                singletonList(0));
+        when(dataSetService.findTraces(any())).thenReturn(tracesDataSet);
+
+        final DataSetImpl eventsDataSet = new DataSetImpl();
+        eventsDataSet.addColumn(COLUMN_TYPE,
+                                ColumnType.NUMBER,
+                                Arrays.asList(NodeInstanceLog.TYPE_ENTER,
+                                              NodeInstanceLog.TYPE_EXIT));
+        eventsDataSet.addColumn(COLUMN_PROCESS_INSTANCE_ID,
+                                ColumnType.NUMBER,
+                                Arrays.asList(processInstanceId,
+                                              processInstanceId));
+        eventsDataSet.addColumn(COLUMN_LOG_DATE,
+                                ColumnType.DATE,
+                                Arrays.asList(new Date(),
+                                              new Date()));
+        eventsDataSet.addColumn(COLUMN_NODE_NAME,
+                                ColumnType.LABEL,
+                                Arrays.asList("",
+                                              ""));
+        eventsDataSet.addColumn(COLUMN_NODE_TYPE,
+                                ColumnType.LABEL,
+                                Arrays.asList("StartNode",
+                                              "StartNode"));
+        eventsDataSet.addColumn(COLUMN_NODE_INSTANCE_ID,
+                                ColumnType.LABEL,
+                                Arrays.asList("1",
+                                              "1"));
+        eventsDataSet.addColumn(COLUMN_NODE_ID,
+                                ColumnType.LABEL,
+                                Arrays.asList("_09AE0EB5-703B-4439-A83D-C92A10C28F63",
+                                              "_09AE0EB5-703B-4439-A83D-C92A10C28F63"));
+        eventsDataSet.addColumn(COLUMN_WORK_ITEM_ID,
+                                ColumnType.NUMBER,
+                                Arrays.asList(null,
+                                              null));
+
+        when(dataSetService.findEvents(any())).thenReturn(eventsDataSet);
+
+        String xml = xesExportService.export(XESProcessFilter.builder().withProcessId("processId").build());
+
+        JAXBContext context = JAXBContext.newInstance("org.jbpm.xes.model");
+
+        final URL schema = Thread.currentThread().getContextClassLoader().getResource("xes.xsd");
+
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+
+        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema xesSchema = sf.newSchema(schema);
+        unmarshaller.setSchema(xesSchema);
+
+        Validator validator = xesSchema.newValidator();
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))));
+
+        JAXBElement<LogType> log = (JAXBElement<LogType>) unmarshaller.unmarshal(new StringReader(xml));
+        assertNotNull(log.getValue());
+        assertEquals(4,
+                     log.getValue().getExtension().size());
+        assertEquals(3,
+                     log.getValue().getStringOrDateOrInt().size());
+        assertEquals(2,
+                     log.getValue().getGlobal().size());
+        assertEquals(2,
+                     log.getValue().getClassifier().size());
+        assertEquals(1,
+                     log.getValue().getTrace().size());
+        assertEquals(2,
+                     log.getValue().getTrace().get(0).getEvent().size());
+    }
+}
