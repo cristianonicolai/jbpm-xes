@@ -1,6 +1,7 @@
 package org.jbpm.xes.dataset;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.dashbuilder.DataSetCore;
 import org.dashbuilder.dataprovider.DataSetProviderRegistry;
@@ -26,9 +27,15 @@ public class DataSetServiceImpl implements DataSetService {
     private DataSetDefRegistry dataSetDefRegistry = DataSetCore.get().getDataSetDefRegistry();
     private DataSetManager dataSetManager = DataSetCore.get().getDataSetManager();
     private DataSetProviderRegistry providerRegistry = DataSetCore.get().getDataSetProviderRegistry();
+    private Function<String, String> dataSourceResolver;
 
     public DataSetServiceImpl() {
-        providerRegistry.registerDataProvider(SQLDataSetProvider.get());
+        this(ds -> ds);
+    }
+
+    public DataSetServiceImpl(Function<String, String> dataSourceResolver) {
+        this.dataSourceResolver = dataSourceResolver;
+        this.providerRegistry.registerDataProvider(SQLDataSetProvider.get());
         final List<QueryDefinition> queryDefinitions = QueryDefinitionLoader.get().loadQueryDefinitions();
         queryDefinitions.forEach(q -> registerDataSetDefinition(q));
     }
@@ -39,7 +46,7 @@ public class DataSetServiceImpl implements DataSetService {
         SQLDataSetDefBuilder<?> builder = DataSetDefFactory.newSQLDataSetDef()
                 .uuid(queryDefinition.getName())
                 .name(queryDefinition.getTarget() + "-" + queryDefinition.getName())
-                .dataSource(queryDefinition.getSource())
+                .dataSource(dataSourceResolver.apply(queryDefinition.getSource()))
                 .dbSQL(queryDefinition.getExpression(),
                        true);
 
@@ -47,7 +54,7 @@ public class DataSetServiceImpl implements DataSetService {
 
         dataSetDef.setPublic(false);
 
-        DataSetCore.get().getDataSetDefRegistry().registerDataSetDef(dataSetDef);
+        dataSetDefRegistry.registerDataSetDef(dataSetDef);
         LOGGER.info("Data Set registered {}",
                     dataSetDef);
     }

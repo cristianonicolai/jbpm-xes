@@ -13,6 +13,7 @@ public class EventTypeMapper implements BiFunction<DataSet, Integer, EventType> 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventTypeMapper.class);
 
+    public static final String COLUMN_ID = "id";
     public static final String COLUMN_LOG_DATE = "log_date";
     public static final String COLUMN_NODE_NAME = "nodeName";
     public static final String COLUMN_NODE_TYPE = "nodeType";
@@ -65,6 +66,11 @@ public class EventTypeMapper implements BiFunction<DataSet, Integer, EventType> 
         event.addStringType(
                 "jbpm:nodeinstanceid",
                 nodeInstanceId);
+        event.addIntegerType(
+                "jbpm:logid",
+                getColumnLongValue(dataSet,
+                                   COLUMN_ID,
+                                   row));
         event.addStringType(
                 "jbpm:nodeid",
                 getColumnStringValue(dataSet,

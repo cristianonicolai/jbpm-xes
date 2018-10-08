@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
 import static org.dashbuilder.dataset.filter.FilterFactory.in;
-import static org.jbpm.xes.dataset.DataSetUtils.getColumnIntValue;
+import static org.jbpm.xes.dataset.DataSetUtils.getColumnLongValue;
 import static org.jbpm.xes.mapper.TraceTypeMapper.COLUMN_PROCESS_INSTANCE_ID;
 
 public class XESExportServiceImpl implements XESExportService {
@@ -46,6 +46,7 @@ public class XESExportServiceImpl implements XESExportService {
         LOGGER.info("Starting XES export...");
         LOGGER.debug("XES filter: {}",
                      filter);
+//      TODO: Include variables from tasks and processes
 
         final LocalDateTime start = LocalDateTime.now();
 
@@ -63,12 +64,12 @@ public class XESExportServiceImpl implements XESExportService {
         final LogType log = new LogTypeMapper().apply(null,
                                                       filter.getProcessId());
 
-        final Map<Integer, TraceType> instances = new HashMap<>();
+        final Map<Long, TraceType> instances = new HashMap<>();
         List<TraceType> traces = IntStream.range(0,
                                                  tracesDataSet.getRowCount()).boxed().map(row -> {
-            Integer pId = getColumnIntValue(tracesDataSet,
-                                            COLUMN_PROCESS_INSTANCE_ID,
-                                            row);
+            Long pId = getColumnLongValue(tracesDataSet,
+                                          COLUMN_PROCESS_INSTANCE_ID,
+                                          row);
             TraceType trace = new TraceTypeMapper().apply(tracesDataSet,
                                                           row);
             instances.put(pId,
@@ -85,9 +86,9 @@ public class XESExportServiceImpl implements XESExportService {
                      eventsDataSet.getRowCount());
         IntStream.range(0,
                         eventsDataSet.getRowCount()).boxed().forEach(row -> {
-            Integer pId = getColumnIntValue(eventsDataSet,
-                                            COLUMN_PROCESS_INSTANCE_ID,
-                                            row);
+            Long pId = getColumnLongValue(eventsDataSet,
+                                          COLUMN_PROCESS_INSTANCE_ID,
+                                          row);
             instances.get(pId).getEvent().add(new EventTypeMapper().apply(eventsDataSet,
                                                                           row));
         });

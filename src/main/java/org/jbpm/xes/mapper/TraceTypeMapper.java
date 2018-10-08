@@ -11,8 +11,7 @@ import static org.jbpm.xes.dataset.DataSetUtils.*;
 
 public class TraceTypeMapper implements BiFunction<DataSet, Integer, TraceType> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TraceTypeMapper.class);
-
+    public static final String COLUMN_ID = "id";
     public static final String COLUMN_PROCESS_INSTANCE_ID = "processInstanceId";
     public static final String COLUMN_PROCESS_ID = "processId";
     public static final String COLUMN_USER_IDENTITY = "user_identity";
@@ -25,13 +24,14 @@ public class TraceTypeMapper implements BiFunction<DataSet, Integer, TraceType> 
     public static final String COLUMN_STATUS = "status";
     public static final String COLUMN_SLA_DUE_DATE = "sla_due_date";
     public static final String COLUMN_SLA_COMPLIANCE = "slaCompliance";
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraceTypeMapper.class);
 
     @Override
     public TraceType apply(DataSet dataSet,
                            Integer row) {
-        final Integer processInstanceId = getColumnIntValue(dataSet,
-                                                            COLUMN_PROCESS_INSTANCE_ID,
-                                                            row);
+        final Long processInstanceId = getColumnLongValue(dataSet,
+                                                          COLUMN_PROCESS_INSTANCE_ID,
+                                                          row);
 
         final TraceType trace = new TraceType();
 
@@ -45,6 +45,11 @@ public class TraceTypeMapper implements BiFunction<DataSet, Integer, TraceType> 
                                      row));
 
 //        Custom jBPM attributes
+        trace.addIntegerType(
+                "jbpm:logid",
+                getColumnLongValue(dataSet,
+                                   COLUMN_ID,
+                                   row));
         trace.addStringType(
                 "jbpm:correlationkey",
                 getColumnStringValue(dataSet,
@@ -64,9 +69,9 @@ public class TraceTypeMapper implements BiFunction<DataSet, Integer, TraceType> 
         trace.addIntegerType(
                 "jbpm:instanceid",
                 processInstanceId);
-        Integer parent = getColumnIntValue(dataSet,
-                                           COLUMN_PARENT_PROCESS_INSTANCE_ID,
-                                           row);
+        Long parent = getColumnLongValue(dataSet,
+                                         COLUMN_PARENT_PROCESS_INSTANCE_ID,
+                                         row);
         if (parent != -1) {
             trace.addIntegerType(
                     "jbpm:parentinstanceid",

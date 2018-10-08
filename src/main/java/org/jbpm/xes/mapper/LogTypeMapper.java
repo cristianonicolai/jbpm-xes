@@ -71,6 +71,8 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
                             "");
         trace.addStringType("jbpm:correlationkey",
                             "");
+        trace.addStringType("jbpm:logid",
+                            "");
 
         final GlobalsType event = new GlobalsType("event");
         event.addStringType("time:timestamp",
@@ -84,6 +86,8 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
         event.addStringType("jbpm:nodeid",
                             "");
         event.addStringType("jbpm:nodetype",
+                            "");
+        event.addStringType("jbpm:logid",
                             "");
         return Arrays.asList(
                 trace,

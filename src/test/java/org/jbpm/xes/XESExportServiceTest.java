@@ -1,24 +1,14 @@
 package org.jbpm.xes;
 
-import java.io.ByteArrayInputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.dashbuilder.dataset.ColumnType;
 import org.dashbuilder.dataset.impl.DataSetImpl;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.xes.dataset.DataSetService;
+import org.jbpm.xes.mapper.EventTypeMapper;
+import org.jbpm.xes.mapper.TraceTypeMapper;
 import org.jbpm.xes.model.LogType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +40,9 @@ public class XESExportServiceTest {
         tracesDataSet.addColumn(COLUMN_PROCESS_INSTANCE_ID,
                                 ColumnType.NUMBER,
                                 singletonList(processInstanceId));
+        tracesDataSet.addColumn(TraceTypeMapper.COLUMN_ID,
+                                ColumnType.NUMBER,
+                                singletonList(1));
         tracesDataSet.addColumn(COLUMN_USER_IDENTITY,
                                 ColumnType.LABEL,
                                 singletonList("admin"));
@@ -98,6 +91,10 @@ public class XESExportServiceTest {
                                 ColumnType.LABEL,
                                 Arrays.asList("1",
                                               "1"));
+        eventsDataSet.addColumn(EventTypeMapper.COLUMN_ID,
+                                ColumnType.NUMBER,
+                                Arrays.asList(1,
+                                              2));
         eventsDataSet.addColumn(COLUMN_NODE_ID,
                                 ColumnType.LABEL,
                                 Arrays.asList("_09AE0EB5-703B-4439-A83D-C92A10C28F63",
@@ -111,32 +108,22 @@ public class XESExportServiceTest {
 
         String xml = xesExportService.export(XESProcessFilter.builder().withProcessId("processId").build());
 
-        JAXBContext context = JAXBContext.newInstance("org.jbpm.xes.model");
+        final XESLogMarshaller marshaller = new XESLogMarshaller();
+        marshaller.validate(xml);
 
-        final URL schema = Thread.currentThread().getContextClassLoader().getResource("xes.xsd");
-
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-
-        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema xesSchema = sf.newSchema(schema);
-        unmarshaller.setSchema(xesSchema);
-
-        Validator validator = xesSchema.newValidator();
-        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))));
-
-        JAXBElement<LogType> log = (JAXBElement<LogType>) unmarshaller.unmarshal(new StringReader(xml));
-        assertNotNull(log.getValue());
+        LogType log = marshaller.unmarshall(xml);
+        assertNotNull(log);
         assertEquals(4,
-                     log.getValue().getExtension().size());
+                     log.getExtension().size());
         assertEquals(3,
-                     log.getValue().getStringOrDateOrInt().size());
+                     log.getStringOrDateOrInt().size());
         assertEquals(2,
-                     log.getValue().getGlobal().size());
+                     log.getGlobal().size());
         assertEquals(2,
-                     log.getValue().getClassifier().size());
+                     log.getClassifier().size());
         assertEquals(1,
-                     log.getValue().getTrace().size());
+                     log.getTrace().size());
         assertEquals(2,
-                     log.getValue().getTrace().get(0).getEvent().size());
+                     log.getTrace().get(0).getEvent().size());
     }
 }

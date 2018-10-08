@@ -1,13 +1,20 @@
 package org.jbpm.xes;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.jbpm.xes.model.LogType;
 import org.jbpm.xes.model.ObjectFactory;
@@ -51,5 +58,18 @@ public class XESLogMarshaller {
         String xml = stream.toString();
         LOGGER.debug("\n" + xml);
         return xml;
+    }
+
+    public LogType unmarshall(String xml) throws Exception {
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        unmarshaller.setSchema(xesSchema);
+
+        JAXBElement<LogType> log = (JAXBElement<LogType>) unmarshaller.unmarshal(new StringReader(xml));
+        return log.getValue();
+    }
+
+    public void validate(String xml) throws Exception {
+        Validator validator = xesSchema.newValidator();
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))));
     }
 }

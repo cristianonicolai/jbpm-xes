@@ -49,6 +49,20 @@ public final class DataSetUtils {
                                             int index) {
         Object value = dataSet.getValueAt(index,
                                           columnId);
-        return value != null ? Integer.parseInt(value.toString()) : null;
+        if (value == null) {
+            return null;
+        }
+        return value instanceof Double ? ((Double) value).intValue() : Integer.parseInt(value.toString());
+    }
+
+    public static Long getColumnLongValue(DataSet currentDataSet,
+                                          String columnId,
+                                          int index) {
+        Object value = currentDataSet.getValueAt(index,
+                                                 columnId);
+        if (value == null) {
+            return null;
+        }
+        return value instanceof Double ? ((Double) value).longValue() : Long.parseLong(value.toString());
     }
 }
