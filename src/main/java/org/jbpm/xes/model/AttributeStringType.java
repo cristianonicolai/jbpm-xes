@@ -53,4 +53,13 @@ public class AttributeStringType extends AttributeType {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "AttributeStringType{" +
+                "value='" + value + '\'' +
+                ", key='" + key + '\'' +
+                ", stringOrDateOrInt=" + stringOrDateOrInt +
+                '}';
+    }
 }

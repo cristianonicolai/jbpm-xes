@@ -22,4 +22,10 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "AttributeContainerType")
 public class AttributeContainerType extends AttributableType {
 
+    @Override
+    public String toString() {
+        return "AttributeContainerType{" +
+                "stringOrDateOrInt=" + stringOrDateOrInt +
+                '}';
+    }
 }

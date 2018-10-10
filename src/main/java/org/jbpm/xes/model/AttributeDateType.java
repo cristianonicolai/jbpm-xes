@@ -56,4 +56,13 @@ public class AttributeDateType extends AttributeType {
     public void setValue(XMLGregorianCalendar value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "AttributeDateType{" +
+                "value=" + value +
+                ", key='" + key + '\'' +
+                ", stringOrDateOrInt=" + stringOrDateOrInt +
+                '}';
+    }
 }

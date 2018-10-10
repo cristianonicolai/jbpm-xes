@@ -1,13 +1,15 @@
 package org.jbpm.xes;
 
+import java.util.stream.IntStream;
 import javax.naming.InitialContext;
-import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.jbpm.xes.dataset.DataSetService;
 import org.jbpm.xes.dataset.DataSetServiceImpl;
 import org.jbpm.xes.model.LogType;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -17,18 +19,36 @@ import static org.junit.Assert.*;
 
 public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
 
+    private static final String DS_NAME = "jdbc/xesDs";
+    private BasicDataSource xesDataSource;
+
     public XESProcessExportTest() {
         super(true,
               true);
     }
 
-    public static DataSource setupDataSource(String connectURI) {
+    public static BasicDataSource setupDataSource(String connectURI) {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName("org.h2.Driver");
         ds.setUrl(connectURI);
         ds.setUsername("sa");
         ds.setPassword("");
         return ds;
+    }
+
+    @Before
+    public void setup() throws Exception {
+        InitialContext context = new InitialContext();
+        xesDataSource = setupDataSource("jdbc:h2:mem:jbpm-db;MVCC=true");
+        context.bind(DS_NAME,
+                     xesDataSource);
+    }
+
+    @After
+    public void cleanup() throws Exception {
+        if (xesDataSource != null) {
+            xesDataSource.close();
+        }
     }
 
     @Test
@@ -42,25 +62,24 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
         // get access to KieSession instance
         KieSession ksession = runtimeEngine.getKieSession();
 
-        // start process
-        ProcessInstance processInstance = ksession.startProcess("hello");
+        int instances = 5;
+        IntStream.range(0,
+                        instances).forEach(i -> {
+            // start process
+            ProcessInstance processInstance = ksession.startProcess("hello");
 
-        // check whether the process instance has completed successfully
-        assertProcessInstanceCompleted(processInstance.getId(),
-                                       ksession);
+            // check whether the process instance has completed successfully
+            assertProcessInstanceCompleted(processInstance.getId(),
+                                           ksession);
 
-        // check what nodes have been triggered
-        assertNodeTriggered(processInstance.getId(),
-                            "Start",
-                            "Hello",
-                            "End");
+            // check what nodes have been triggered
+            assertNodeTriggered(processInstance.getId(),
+                                "Start",
+                                "Hello",
+                                "End");
+        });
 
-        InitialContext context = new InitialContext();
-        DataSource ds = setupDataSource("jdbc:h2:mem:jbpm-db;MVCC=true");
-        final String name = "jdbc/xesDs";
-        context.bind(name,
-                     ds);
-        DataSetService dataSetService = new DataSetServiceImpl(dsName -> name);
+        DataSetService dataSetService = new DataSetServiceImpl(dsName -> DS_NAME);
         XESExportServiceImpl service = new XESExportServiceImpl();
         service.setDataSetService(dataSetService);
         final String xml = service.export(XESProcessFilter.builder().withProcessId("hello").build());
@@ -77,10 +96,10 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
                      log.getGlobal().size());
         assertEquals(2,
                      log.getClassifier().size());
-        assertEquals(1,
+        assertEquals(instances,
                      log.getTrace().size());
-        assertEquals(6,
-                     log.getTrace().get(0).getEvent().size());
+        IntStream.range(0,
+                        instances).forEach(i -> assertEquals(6,
+                                                             log.getTrace().get(i).getEvent().size()));
     }
-
 }

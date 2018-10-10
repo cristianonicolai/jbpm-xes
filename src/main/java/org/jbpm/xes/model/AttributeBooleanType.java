@@ -40,4 +40,13 @@ public class AttributeBooleanType extends AttributeType {
     public void setValue(boolean value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "AttributeBooleanType{" +
+                "value=" + value +
+                ", key='" + key + '\'' +
+                ", stringOrDateOrInt=" + stringOrDateOrInt +
+                '}';
+    }
 }

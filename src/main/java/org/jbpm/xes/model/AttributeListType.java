@@ -22,4 +22,11 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "AttributeListType")
 public class AttributeListType extends AttributeType {
 
+    @Override
+    public String toString() {
+        return "AttributeListType{" +
+                "key='" + key + '\'' +
+                ", stringOrDateOrInt=" + stringOrDateOrInt +
+                '}';
+    }
 }

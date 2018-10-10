@@ -49,4 +49,13 @@ public class AttributeIntType extends AttributeType {
     public void setValue(long value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "AttributeIntType{" +
+                "value=" + value +
+                ", key='" + key + '\'' +
+                ", stringOrDateOrInt=" + stringOrDateOrInt +
+                '}';
+    }
 }
