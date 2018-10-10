@@ -21,7 +21,11 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AttributeStringType", propOrder = {"key", "value"})
+@XmlType(name = "AttributeStringType", propOrder = {
+        "key",
+        "value",
+        "stringOrDateOrInt"
+})
 public class AttributeStringType extends AttributeType {
 
     @XmlAttribute(name = "value", required = true)

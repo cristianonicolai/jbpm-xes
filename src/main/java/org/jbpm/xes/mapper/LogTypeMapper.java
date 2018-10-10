@@ -2,6 +2,7 @@ package org.jbpm.xes.mapper;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -19,8 +20,6 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
         log.setXesFeatures("");
         log.setXesVersion(BigDecimal.valueOf(2.0));
         log.getExtension().addAll(getExtensions());
-        log.getClassifier().add(new ClassifierType("Resource",
-                                                   "org:resource"));
         log.getClassifier().add(new ClassifierType("Activity",
                                                    "jbpm:nodeid"));
         log.getGlobal().addAll(getGlobals());
@@ -57,26 +56,24 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
         final GlobalsType trace = new GlobalsType("trace");
         trace.addStringType("concept:name",
                             "");
-        trace.addStringType("org:resource",
-                            "");
-        trace.addStringType("jbpm:start",
-                            "");
+        trace.addDateType("jbpm:start",
+                          new Date());
         trace.addStringType("jbpm:status",
                             "");
         trace.addStringType("jbpm:version",
                             "");
         trace.addStringType("jbpm:description",
                             "");
-        trace.addStringType("jbpm:instanceid",
-                            "");
+        trace.addIntegerType("jbpm:instanceid",
+                             0);
         trace.addStringType("jbpm:correlationkey",
                             "");
-        trace.addStringType("jbpm:logid",
-                            "");
+        trace.addIntegerType("jbpm:logid",
+                             0);
 
         final GlobalsType event = new GlobalsType("event");
-        event.addStringType("time:timestamp",
-                            "");
+        event.addDateType("time:timestamp",
+                          new Date());
         event.addStringType("concept:name",
                             "");
         event.addStringType("lifecycle:transition",
@@ -87,8 +84,10 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
                             "");
         event.addStringType("jbpm:nodetype",
                             "");
-        event.addStringType("jbpm:logid",
-                            "");
+
+        event.addIntegerType("jbpm:logid",
+                             0);
+
         return Arrays.asList(
                 trace,
                 event

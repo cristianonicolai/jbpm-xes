@@ -1,6 +1,8 @@
 package org.jbpm.xes.model;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -19,18 +21,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 @XmlTransient
-@XmlType(name = "AttributeType")
-@XmlSeeAlso({
-        AttributeIDType.class,
-        AttributeIntType.class,
-        AttributeDateType.class,
-        AttributeFloatType.class,
-        AttributeListType.class,
-        AttributeBooleanType.class,
-        AttributeStringType.class
-})
 public class AttributeType extends AttributableType {
 
     @XmlAttribute(name = "key", required = true)

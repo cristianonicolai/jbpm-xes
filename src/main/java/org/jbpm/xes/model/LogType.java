@@ -39,6 +39,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
         "extension",
         "global",
         "classifier",
+        "stringOrDateOrInt",
         "trace",
 })
 public class LogType extends ElementType {

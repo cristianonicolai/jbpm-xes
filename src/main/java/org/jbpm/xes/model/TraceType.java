@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TraceType", propOrder = {
+        "stringOrDateOrInt",
         "event"
 })
 public class TraceType extends ElementType {

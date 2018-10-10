@@ -109,7 +109,6 @@ public class XESExportServiceTest {
         String xml = xesExportService.export(XESProcessFilter.builder().withProcessId("processId").build());
 
         final XESLogMarshaller marshaller = new XESLogMarshaller();
-        marshaller.validate(xml);
 
         LogType log = marshaller.unmarshall(xml);
         assertNotNull(log);
@@ -119,7 +118,7 @@ public class XESExportServiceTest {
                      log.getStringOrDateOrInt().size());
         assertEquals(2,
                      log.getGlobal().size());
-        assertEquals(2,
+        assertEquals(1,
                      log.getClassifier().size());
         assertEquals(1,
                      log.getTrace().size());

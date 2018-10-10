@@ -24,7 +24,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "GlobalsType")
+@XmlType(name = "GlobalsType", propOrder = {
+        "stringOrDateOrInt"
+})
 public class GlobalsType extends AttributableType {
 
     @XmlAttribute(name = "scope", required = true)

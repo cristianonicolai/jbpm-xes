@@ -84,7 +84,6 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
         service.setDataSetService(dataSetService);
         final String xml = service.export(XESProcessFilter.builder().withProcessId("hello").build());
         final XESLogMarshaller marshaller = new XESLogMarshaller();
-        marshaller.validate(xml);
 
         LogType log = marshaller.unmarshall(xml);
         assertNotNull(log);
@@ -94,7 +93,7 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
                      log.getStringOrDateOrInt().size());
         assertEquals(2,
                      log.getGlobal().size());
-        assertEquals(2,
+        assertEquals(1,
                      log.getClassifier().size());
         assertEquals(instances,
                      log.getTrace().size());

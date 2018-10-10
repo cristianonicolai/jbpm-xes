@@ -1,9 +1,7 @@
 package org.jbpm.xes.model;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * <p>Java class for ElementType complex type.
@@ -19,8 +17,7 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ElementType")
+@XmlTransient
 @XmlSeeAlso({
         LogType.class,
         TraceType.class,

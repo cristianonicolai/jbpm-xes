@@ -35,16 +35,17 @@ public class TraceTypeMapper implements BiFunction<DataSet, Integer, TraceType> 
 
         final TraceType trace = new TraceType();
 
-        trace.addIntegerType(
-                "concept:name",
-                processInstanceId);
         trace.addStringType(
-                "org:resource",
+                "concept:name",
+                processInstanceId.toString());
+
+//        Custom jBPM attributes
+        trace.addStringType(
+                "jbpm:initiator",
                 getColumnStringValue(dataSet,
                                      COLUMN_USER_IDENTITY,
                                      row));
 
-//        Custom jBPM attributes
         trace.addIntegerType(
                 "jbpm:logid",
                 getColumnLongValue(dataSet,

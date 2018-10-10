@@ -3,12 +3,9 @@ package org.jbpm.xes.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 
 import org.jbpm.xes.mapper.XMLGregorianCalendarMapper;
 
@@ -38,16 +35,7 @@ import static java.util.Optional.ofNullable;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AttributableType", propOrder = {
-        "stringOrDateOrInt"
-})
-@XmlSeeAlso({
-        ElementType.class,
-        GlobalsType.class,
-        AttributeContainerType.class,
-        AttributeType.class
-})
+@XmlTransient
 public class AttributableType {
 
     @XmlElements({
