@@ -1,9 +1,11 @@
 package org.jbpm.xes;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 import javax.naming.InitialContext;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.jbpm.xes.dataset.DataSetService;
 import org.jbpm.xes.dataset.DataSetServiceImpl;
@@ -40,8 +42,8 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
     public void setup() throws Exception {
         InitialContext context = new InitialContext();
         xesDataSource = setupDataSource("jdbc:h2:mem:jbpm-db;MVCC=true");
-        context.bind(DS_NAME,
-                     xesDataSource);
+        context.rebind(DS_NAME,
+                       xesDataSource);
     }
 
     @After
@@ -82,7 +84,7 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
         DataSetService dataSetService = new DataSetServiceImpl(dsName -> DS_NAME);
         XESExportServiceImpl service = new XESExportServiceImpl();
         service.setDataSetService(dataSetService);
-        final String xml = service.export(XESProcessFilter.builder().withProcessId("hello").build());
+        final String xml = service.export(XESProcessFilter.builder().withProcessId("hello").withAllNodeTypes().build());
         final XESLogMarshaller marshaller = new XESLogMarshaller();
 
         LogType log = marshaller.unmarshall(xml);
@@ -93,12 +95,64 @@ public class XESProcessExportTest extends JbpmJUnitBaseTestCase {
                      log.getStringOrDateOrInt().size());
         assertEquals(2,
                      log.getGlobal().size());
-        assertEquals(1,
+        assertEquals(4,
                      log.getClassifier().size());
         assertEquals(instances,
                      log.getTrace().size());
         IntStream.range(0,
                         instances).forEach(i -> assertEquals(6,
+                                                             log.getTrace().get(i).getEvent().size()));
+    }
+
+    @Test
+    public void testHelloProcessWithFilters() throws Exception {
+        // create runtime manager with single process - hello.bpmn
+        createRuntimeManager("hello.bpmn");
+
+        // take RuntimeManager to work with process engine
+        RuntimeEngine runtimeEngine = getRuntimeEngine();
+
+        // get access to KieSession instance
+        KieSession ksession = runtimeEngine.getKieSession();
+
+        int instances = 5;
+        IntStream.range(0,
+                        instances).forEach(i -> {
+            // start process
+            ProcessInstance processInstance = ksession.startProcess("hello");
+
+            // check whether the process instance has completed successfully
+            assertProcessInstanceCompleted(processInstance.getId(),
+                                           ksession);
+
+            // check what nodes have been triggered
+            assertNodeTriggered(processInstance.getId(),
+                                "Start",
+                                "Hello",
+                                "End");
+        });
+
+        DataSetService dataSetService = new DataSetServiceImpl(dsName -> DS_NAME);
+        XESExportServiceImpl service = new XESExportServiceImpl();
+        service.setDataSetService(dataSetService);
+        final XESProcessFilter filter = XESProcessFilter.builder().withProcessId("hello").withProcessVersion("1.0").withStatus(Arrays.asList(ProcessInstance.STATE_COMPLETED)).withNodeInstanceLogType(NodeInstanceLog.TYPE_EXIT).build();
+        final String xml = service.export(filter);
+        final XESLogMarshaller marshaller = new XESLogMarshaller();
+
+        LogType log = marshaller.unmarshall(xml);
+        assertNotNull(log);
+        assertEquals(4,
+                     log.getExtension().size());
+        assertEquals(3,
+                     log.getStringOrDateOrInt().size());
+        assertEquals(2,
+                     log.getGlobal().size());
+        assertEquals(4,
+                     log.getClassifier().size());
+        assertEquals(instances,
+                     log.getTrace().size());
+        IntStream.range(0,
+                        instances).forEach(i -> assertEquals(1,
                                                              log.getTrace().get(i).getEvent().size()));
     }
 }

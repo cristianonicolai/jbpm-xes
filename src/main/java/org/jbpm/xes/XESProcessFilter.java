@@ -15,6 +15,10 @@ public class XESProcessFilter {
 
     private List<Integer> status;
 
+    private Boolean allNodeTypes = Boolean.FALSE;
+
+    private Integer nodeInstanceLogType;
+
     public String getProcessId() {
         return processId;
     }
@@ -55,6 +59,22 @@ public class XESProcessFilter {
         this.status = status;
     }
 
+    public void setAllNodeTypes(Boolean allNodeTypes) {
+        this.allNodeTypes = allNodeTypes;
+    }
+
+    public Boolean isAllNodeTypes() {
+        return allNodeTypes;
+    }
+
+    public void setNodeInstanceLogType(Integer nodeInstanceLogType) {
+        this.nodeInstanceLogType = nodeInstanceLogType;
+    }
+
+    public Integer getNodeInstanceLogType() {
+        return nodeInstanceLogType;
+    }
+
     @Override
     public String toString() {
         return "XESProcessFilter{" +
@@ -63,6 +83,8 @@ public class XESProcessFilter {
                 ", since=" + since +
                 ", to=" + to +
                 ", status=" + status +
+                ", allNodeTypes=" + allNodeTypes +
+                ", nodeInstanceLogType=" + nodeInstanceLogType +
                 '}';
     }
 
@@ -100,6 +122,16 @@ public class XESProcessFilter {
 
         public Builder withStatus(List<Integer> status) {
             xESProcessFilter.setStatus(status);
+            return this;
+        }
+
+        public Builder withAllNodeTypes() {
+            xESProcessFilter.setAllNodeTypes(true);
+            return this;
+        }
+
+        public Builder withNodeInstanceLogType(Integer type) {
+            xESProcessFilter.setNodeInstanceLogType(type);
             return this;
         }
 

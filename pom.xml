@@ -10,7 +10,7 @@
   <name>jBPM XES Exporter</name>
 
   <properties>
-    <jbpm.verison>7.11.0.Final</jbpm.verison>
+    <jbpm.verison>7.13.0-SNAPSHOT</jbpm.verison>
   </properties>
 
   <dependencies>

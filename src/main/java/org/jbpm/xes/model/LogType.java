@@ -50,7 +50,7 @@ public class LogType extends ElementType {
     protected List<TraceType> trace;
 
     @XmlAttribute(name = "xes.version", required = true)
-    protected BigDecimal xesVersion;
+    protected String xesVersion;
 
     @XmlAttribute(name = "xes.features")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -171,18 +171,18 @@ public class LogType extends ElementType {
     /**
      * Gets the value of the xesVersion property.
      * @return possible object is
-     * {@link BigDecimal }
+     * {@link String }
      */
-    public BigDecimal getXesVersion() {
+    public String getXesVersion() {
         return xesVersion;
     }
 
     /**
      * Sets the value of the xesVersion property.
      * @param value allowed object is
-     * {@link BigDecimal }
+     * {@link String }
      */
-    public void setXesVersion(BigDecimal value) {
+    public void setXesVersion(String value) {
         this.xesVersion = value;
     }
 

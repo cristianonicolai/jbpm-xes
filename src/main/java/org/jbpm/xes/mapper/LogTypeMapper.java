@@ -1,6 +1,5 @@
 package org.jbpm.xes.mapper;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -18,10 +17,16 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
                          String processId) {
         final LogType log = new LogType();
         log.setXesFeatures("");
-        log.setXesVersion(BigDecimal.valueOf(2.0));
+        log.setXesVersion("2.0");
         log.getExtension().addAll(getExtensions());
-        log.getClassifier().add(new ClassifierType("Activity",
+        log.getClassifier().add(new ClassifierType("By Node Name",
+                                                   "concept:name"));
+        log.getClassifier().add(new ClassifierType("By Node Id",
                                                    "jbpm:nodeid"));
+        log.getClassifier().add(new ClassifierType("By Name and Transition",
+                                                   "concept:name lifecycle:transition"));
+        log.getClassifier().add(new ClassifierType("By Resource",
+                                                   "org:resource"));
         log.getGlobal().addAll(getGlobals());
         log.addStringType("source",
                           "jBPM");
@@ -75,6 +80,8 @@ public class LogTypeMapper implements BiFunction<String, String, LogType> {
         event.addDateType("time:timestamp",
                           new Date());
         event.addStringType("concept:name",
+                            "");
+        event.addStringType("org:resource",
                             "");
         event.addStringType("lifecycle:transition",
                             "");

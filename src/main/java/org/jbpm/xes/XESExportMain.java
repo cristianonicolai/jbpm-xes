@@ -68,6 +68,12 @@ public class XESExportMain {
                     filter.withStatus(status);
                 }
             }
+            if (line.hasOption("logtype")) {
+                filter.withNodeInstanceLogType(Integer.valueOf(line.getOptionValue("logtype")));
+            }
+            if (line.hasOption("nodetypes")) {
+                filter.withAllNodeTypes();
+            }
 
             final String xml = service.export(filter.build());
             if (line.hasOption("file")) {
@@ -99,14 +105,16 @@ public class XESExportMain {
 
     private static Options getOptions() {
         Options options = new Options();
-        options.addOption(OptionBuilder.withArgName("user").isRequired().hasArg().withDescription("Database username").create("user"));
-        options.addOption(OptionBuilder.withArgName("password").isRequired().hasArg().withDescription("Database password").create("password"));
-        options.addOption(OptionBuilder.withArgName("url").isRequired().hasArg().withDescription("Database url").create("url"));
-        options.addOption(OptionBuilder.withArgName("driver").isRequired().hasArg().withDescription("Database driver").create("driver"));
-        options.addOption(OptionBuilder.withArgName("file").hasArg().withDescription("File name to save result XES").create("file"));
-        options.addOption(OptionBuilder.withArgName("process").isRequired().hasArg().withDescription("Process Id to export").create("process"));
-        options.addOption(OptionBuilder.withArgName("version").hasArg().withDescription("Process version to export").create("version"));
-        options.addOption(OptionBuilder.withArgName("status").hasArgs(4).withDescription("Process status to export").create("status"));
+        options.addOption(Option.builder("user").argName("user").required().hasArg().desc("Database username").build());
+        options.addOption(Option.builder("password").argName("password").hasArg().desc("Database password").build());
+        options.addOption(Option.builder("url").argName("url").required().hasArg().desc("Database url").build());
+        options.addOption(Option.builder("driver").argName("driver").required().hasArg().desc("Database driver").build());
+        options.addOption(Option.builder("file").argName("file").hasArg().desc("File name to save result XES").build());
+        options.addOption(Option.builder("process").argName("process").required().hasArg().desc("Process Id to export").build());
+        options.addOption(Option.builder("version").argName("version").hasArg().desc("Process version to export").build());
+        options.addOption(Option.builder("status").argName("status").numberOfArgs(4).desc("Process status to export").build());
+        options.addOption(Option.builder("nodetypes").argName("a").desc("Export all node type. Default will only export relevant activities.").build());
+        options.addOption(Option.builder("logtype").argName("logtype").hasArg().desc("Use 0 for node entered events or 1 for exit events. Default will export all types.").build());
         return options;
     }
 }

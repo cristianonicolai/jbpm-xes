@@ -7,6 +7,7 @@ import org.jbpm.xes.model.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.jbpm.xes.dataset.DataSetUtils.*;
 
 public class EventTypeMapper implements BiFunction<DataSet, Integer, EventType> {
@@ -44,7 +45,7 @@ public class EventTypeMapper implements BiFunction<DataSet, Integer, EventType> 
 
         event.addStringType(
                 "concept:name",
-                nodeName.isEmpty() ? nodeType : nodeName);
+                nodeName.trim().isEmpty() ? nodeType : nodeName);
 
         String nodeInstanceId = getColumnStringValue(dataSet,
                                                      COLUMN_NODE_INSTANCE_ID,
@@ -89,15 +90,19 @@ public class EventTypeMapper implements BiFunction<DataSet, Integer, EventType> 
                 "jbpm:nodetype",
                 nodeType);
 
+        String resource = null;
         if ("HumanTaskNode".equals(nodeType) && workItemId != null) {
-            event.addStringType("org:resource",
-                                type == 0 ? getColumnStringValue(dataSet,
-                                                                 COLUMN_CREATED_BY,
-                                                                 row) :
-                                        getColumnStringValue(dataSet,
-                                                             COLUMN_ACTUAL_OWNER,
-                                                             row));
+            resource = type == 0 ?
+                    getColumnStringValue(dataSet,
+                                         COLUMN_CREATED_BY,
+                                         row) :
+                    getColumnStringValue(dataSet,
+                                         COLUMN_ACTUAL_OWNER,
+                                         row);
         }
+
+        event.addStringType("org:resource",
+                            isNullOrEmpty(resource) ? "jbpm" : resource);
 
         LOGGER.debug("Generated event object: {}",
                      event);

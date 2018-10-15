@@ -7,6 +7,7 @@
     </encoder>
   </appender>
 
+  <logger name="org.dashbuilder" level="DEBUG"/>
   <logger name="org.jbpm.xes" level="DEBUG"/>
 
   <root level="INFO">

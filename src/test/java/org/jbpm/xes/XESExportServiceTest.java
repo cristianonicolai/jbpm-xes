@@ -118,7 +118,7 @@ public class XESExportServiceTest {
                      log.getStringOrDateOrInt().size());
         assertEquals(2,
                      log.getGlobal().size());
-        assertEquals(1,
+        assertEquals(4,
                      log.getClassifier().size());
         assertEquals(1,
                      log.getTrace().size());

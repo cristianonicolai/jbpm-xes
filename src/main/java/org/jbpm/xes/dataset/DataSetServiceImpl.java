@@ -74,7 +74,7 @@ public class DataSetServiceImpl implements DataSetService {
         DataSetLookupBuilder<?> builder = DataSetLookupFactory.newDataSetLookupBuilder().dataset("jbpmXESEvents");
         builder.filter(filters);
         builder.sort("processInstanceId", SortOrder.ASCENDING);
-        builder.sort("id", SortOrder.ASCENDING);
+        builder.sort("log_date", SortOrder.ASCENDING);
         DataSet result = dataSetManager.lookupDataSet(builder.buildLookup());
         LOGGER.debug("Data set query result: {}", result);
         return result;

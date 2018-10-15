@@ -21,9 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static org.dashbuilder.dataset.filter.FilterFactory.equalsTo;
 import static org.dashbuilder.dataset.filter.FilterFactory.in;
 import static org.jbpm.xes.dataset.DataSetUtils.getColumnLongValue;
+import static org.jbpm.xes.mapper.EventTypeMapper.COLUMN_NODE_TYPE;
+import static org.jbpm.xes.mapper.EventTypeMapper.COLUMN_TYPE;
 import static org.jbpm.xes.mapper.TraceTypeMapper.COLUMN_PROCESS_INSTANCE_ID;
 
 public class XESExportServiceImpl implements XESExportService {
@@ -38,7 +42,7 @@ public class XESExportServiceImpl implements XESExportService {
     }
 
     @Override
-    public String export(XESProcessFilter filter) throws Exception {
+    public String export(final XESProcessFilter filter) throws Exception {
         if (filter == null || isNullOrEmpty(filter.getProcessId())) {
             throw new RuntimeException("Process Id must be provided for filtering the logs");
         }
@@ -79,8 +83,9 @@ public class XESExportServiceImpl implements XESExportService {
 
         log.getTrace().addAll(traces);
 
-        final DataSet eventsDataSet = dataSetService.findEvents(in(COLUMN_PROCESS_INSTANCE_ID,
-                                                                   new ArrayList<>(instances.keySet())));
+        final List<ColumnFilter> eventFilters = getEventsColumnFilter(new ArrayList<>(instances.keySet()),
+                                                                      filter);
+        final DataSet eventsDataSet = dataSetService.findEvents(eventFilters.toArray(new ColumnFilter[eventFilters.size()]));
 
         LOGGER.debug("Found {} events to export.",
                      eventsDataSet.getRowCount());
@@ -100,5 +105,26 @@ public class XESExportServiceImpl implements XESExportService {
                                      LocalDateTime.now()).getSeconds());
 
         return xml;
+    }
+
+    protected List<ColumnFilter> getEventsColumnFilter(final List<Long> pInstances,
+                                                       final XESProcessFilter filter) {
+        List<ColumnFilter> filters = new ArrayList<>();
+        filters.add(in(COLUMN_PROCESS_INSTANCE_ID,
+                       pInstances));
+        if (filter.isAllNodeTypes() == false) {
+            filters.add(in(COLUMN_NODE_TYPE,
+                           asList("HumanTaskNode",
+                                  "WorkItemNode",
+                                  "RuleSetNode",
+                                  "SubProcessNode",
+                                  "MilestoneNode",
+                                  "ActionNode")));
+        }
+        if (filter.getNodeInstanceLogType() != null) {
+            filters.add(equalsTo(COLUMN_TYPE,
+                                 filter.getNodeInstanceLogType()));
+        }
+        return filters;
     }
 }
