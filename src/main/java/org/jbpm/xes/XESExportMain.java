@@ -108,8 +108,8 @@ public class XESExportMain {
         options.addOption(Option.builder("user").argName("user").required().hasArg().desc("Database username").build());
         options.addOption(Option.builder("password").argName("password").hasArg().desc("Database password").build());
         options.addOption(Option.builder("url").argName("url").required().hasArg().desc("Database url").build());
-        options.addOption(Option.builder("driver").argName("driver").required().hasArg().desc("Database driver").build());
-        options.addOption(Option.builder("file").argName("file").hasArg().desc("File name to save result XES").build());
+        options.addOption(Option.builder("driver").argName("driver").required().hasArg().desc("Database driver class name").build());
+        options.addOption(Option.builder("file").argName("file").hasArg().desc("File name to save result XES. Default will print in the console.").build());
         options.addOption(Option.builder("process").argName("process").required().hasArg().desc("Process Id to export").build());
         options.addOption(Option.builder("version").argName("version").hasArg().desc("Process version to export").build());
         options.addOption(Option.builder("status").argName("status").numberOfArgs(4).desc("Process status to export").build());
