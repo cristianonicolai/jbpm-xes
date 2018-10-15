@@ -1,7 +1,6 @@
-# jbpm-xes
-jBPM XES Export Service
+# jBPM XES Export Service
 
-== Overview
+## Overview
 
 The jBPM XES export tool aims to facilitate exporting XES based logs from the jBPM runtime. These logs can then be consumed 
 by different process mining tools to analyse different aspects from the process runtime execution such as conformance, performance, 
@@ -9,7 +8,7 @@ deviations, process discovery and more.
 eXtensible Event Stream (XES) is an xml based standard that unifies the interchange event data information between information systems on one side and analysis tools on the other side.
 For more information regarding the XES standard please visit: http://www.xes-standard.org/
 
-== Building
+## Building
 
 For building this project locally, you firstly need to have the following tools installed locally:
 - git client
@@ -18,23 +17,20 @@ For building this project locally, you firstly need to have the following tools 
 
 Once you cloned the repository locally all you need to do is execute the following Maven build:
 
-[source, bash]
-----
+```
 mvn clean install
-----
+```
 
 Once the build is complete, you can use the generated JAR in 'target/jbpm-xes-${version}-jar-with-dependencies.jar' using:
 
-[source, bash]
-----
+```
 java -jar target/jbpm-xes-1.0.0-SNAPSHOT-jar-with-dependencies.jar 
-----
+```
 
 
-== Sample output XML
+## Sample output XML
 
-[source, xml]
-----
+```
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <log xes.version="2.0" xes.features="">
     <extension name="Lifecycle" prefix="lifecycle" uri="http://www.xes-standard.org/lifecycle.xesext"/>
@@ -153,9 +149,18 @@ java -jar target/jbpm-xes-1.0.0-SNAPSHOT-jar-with-dependencies.jar
         </event>
     </trace>
 </log>
-----
+```
 
-== Usage
+## How it works
+
+The jBPM XES Export tool, connects directly to the jBPM log database in order to extract the relevant information.
+If you intend to export any logs, please ensure that you use the `JPA` as your KJAR's audit mode.
+The tool will look into the `ProcessInstanceLog` and `NodeInstanceLog` tables and filter the data based on the parameters you provided to export.
+As a primary rule for the the XES log, only one process can be exported at time, for that we use the `-process` parameter where you can specify
+the process definition id you would that to filter on. That will filter down the logs to only process instances that matches the paramter.
+You can also use other filters like `version`, `status`, and more.  
+
+## Usage
 
 Out-of-box, the jBPM XES Export tool allows you to connect with the following databases:
 - H2
@@ -165,19 +170,17 @@ Out-of-box, the jBPM XES Export tool allows you to connect with the following da
 
 To use another database, simply provide the additional jar in the classpath of the application.
 
-=== Options
+### Options
 
 The tool allows a series of custom parameters to fine tune which logs should be exported, to see the full list of options please execute:
 
-[source, bash]
-----
+```
 java -jar target/jbpm-xes-1.0.0-SNAPSHOT-jar-with-dependencies.jar 
-----
+```
 
 Which will outcome the following:
 
-[source, bash]
-----
+```
 usage: xes -driver <driver> [-file <file>] [-logtype <logtype>]
        [-nodetypes] [-password <password>] -process <process> [-status
        <status>] -url <url> -user <user> [-version <version>]
@@ -194,12 +197,20 @@ usage: xes -driver <driver> [-file <file>] [-logtype <logtype>]
  -url <url>             Database url
  -user <user>           Database username
  -version <version>     Process version to export
-----
+```
 
-=== Example using a local H2 database file
+### Example using a local H2 database file
 
+```
 java -jar target/jbpm-xes-1.0.0-SNAPSHOT-jar-with-dependencies.jar -driver org.h2.Driver -user sa -password sa -url jdbc:h2:file:./spring-boot-jbpm -process evaluation -file jbpm.xes
+```
 
-=== Example using MySQL database
+### Example using MySQL database
 
+```
 java -jar target/jbpm-xes-1.0.0-SNAPSHOT-jar-with-dependencies.jar -driver com.mysql.jdbc.Driver -user jbpm -password jbpm -url jdbc:mysql://localhost/jbpm -process evaluation -file evaluation.xes
+```
+
+## Feedback
+
+Feel free to open issues if you face any problems using this tool, we would love to help you in your process mining journey!
